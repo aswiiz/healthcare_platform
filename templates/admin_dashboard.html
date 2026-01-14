@@ -1,0 +1,30 @@
+<html>
+<head><link rel="stylesheet" href="/static/style.css"></head>
+<body>
+<div class="container">
+
+<div class="card">
+<h2>Search Citizen</h2>
+<form method="post">
+<input name="search" placeholder="Enter Email">
+<button>Search</button>
+</form>
+</div>
+
+<div class="card">
+<h3>Doctor Consultation Requests</h3>
+{% for o in ops %}
+<p>{{o.email}} | {{o.ai_result}}</p>
+{% endfor %}
+</div>
+
+<div class="card">
+<h3>Health Records</h3>
+{% for r in logs %}
+<p>{{r.email}} | BP: {{r.vitals.bp}} | {{r.ai_result}}</p>
+{% endfor %}
+</div>
+
+</div>
+</body>
+</html>
