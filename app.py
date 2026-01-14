@@ -74,5 +74,4 @@ def update():
         return render_template("done.html", result=result)
 
     return render_template("step_form.html")
-
 app.run(debug=True)
