@@ -76,7 +76,6 @@ def health_data():
             'sleep': float(f.get('sleep', 0)),
             'height': float(f.get('height', 0)),
             'weight': float(f.get('weight', 0)),
-            'waist': float(f.get('waist', 0)),
             'bp_systolic': int(f.get('bp_systolic', 0)),
             'bp_diastolic': int(f.get('bp_diastolic', 0)),
             'fasting_glucose': int(f.get('fasting_glucose', 0)),
@@ -106,7 +105,6 @@ def health_data():
         if health_data_dict['fasting_glucose'] > 126: diabetes_prob += 40
         if health_data_dict['hba1c'] > 6.5: diabetes_prob += 45
         if 'diabetes' in health_data_dict['family_history'].lower(): diabetes_prob += 15
-        if health_data_dict['waist'] > (102 if health_data_dict['sex'] == 'Male' else 88): diabetes_prob += 15
         
         # Cancer Logic
         if health_data_dict['smoking'] == 'Yes': cancer_prob += 30

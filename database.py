@@ -52,7 +52,6 @@ def init_db():
                 sleep REAL,
                 height REAL,
                 weight REAL,
-                waist REAL,
                 bp_systolic INTEGER,
                 bp_diastolic INTEGER,
                 fasting_glucose INTEGER,
