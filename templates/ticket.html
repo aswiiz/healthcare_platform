@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% block title %}Your OP Ticket - Healthcare Hub{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Appointment Confirmed</h1>
+    <p>Your hospital visit has been scheduled successfully.</p>
+</div>
+
+<div class="card" style="max-width: 500px; padding: 0; overflow: hidden; border: 2px solid var(--accent-color);">
+    <div style="background: var(--accent-color); color: white; padding: 1.5rem; text-align: center;">
+        <h2 style="color: white; margin: 0;">CITY CENTRAL HOSPITAL</h2>
+        <p style="margin: 0.5rem 0 0; font-size: 0.8rem; letter-spacing: 2px;">OUT-PATIENT DEPARTMENT (OP)</p>
+    </div>
+
+    <div style="padding: 2rem;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+            <div>
+                <div style="font-size: 0.7rem; color: #666; font-weight: 700;">TICKET NUMBER</div>
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--accent-color);">{{ ticket_no }}</div>
+            </div>
+            <div style="text-align: right;">
+                <div style="font-size: 0.7rem; color: #666; font-weight: 700;">DATE & TIME</div>
+                <div style="font-size: 0.9rem; font-weight: 600;">{{ date }}</div>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 2rem; padding: 1rem; border: 1px dashed #ccc; border-radius: 10px;">
+            <div style="font-size: 0.7rem; color: #666; font-weight: 700; margin-bottom: 0.5rem;">PATIENT DETAILS</div>
+            <div style="font-weight: 600;">NAME: {{ session['username'].upper() }}</div>
+            <div style="font-size: 0.85rem;">DEPARTMENT: GENERAL MEDICINE</div>
+        </div>
+
+        <div style="text-align: center; margin-bottom: 1rem;">
+            <!-- Simple simulated QR Code using CSS/HTML -->
+            <div
+                style="width: 120px; height: 120px; margin: 0 auto; background: #333; display: grid; grid-template-columns: repeat(4, 1fr); padding: 5px; gap: 2px;">
+                <div style="background: white;"></div>
+                <div style="background: white;"></div>
+                <div style="background: #333;"></div>
+                <div style="background: white;"></div>
+                <div style="background: #333;"></div>
+                <div style="background: white;"></div>
+                <div style="background: white;"></div>
+                <div style="background: #333;"></div>
+                <div style="background: white;"></div>
+                <div style="background: #333;"></div>
+                <div style="background: white;"></div>
+                <div style="background: white;"></div>
+                <div style="background: white;"></div>
+                <div style="background: white;"></div>
+                <div style="background: #333;"></div>
+                <div style="background: white;"></div>
+            </div>
+            <p style="font-size: 0.7rem; color: #999; margin-top: 0.5rem;">SCAN FOR VERIFICATION</p>
+        </div>
+    </div>
+
+    <div
+        style="background: #f8f9fa; padding: 1rem; text-align: center; font-size: 0.8rem; color: #666; border-top: 1px solid #eee;">
+        Please bring a printout or digital copy of this ticket to the counter.
+    </div>
+</div>
+
+<div style="margin-top: 2rem;">
+    <button onclick="window.print()" class="btn btn-secondary" style="width: 200px;">Print Ticket</button>
+    <a href="{{ url_for('user_home') }}" class="btn"
+        style="width: 200px; text-decoration: none; display: inline-block;">Back to Home</a>
+</div>
+{% endblock %}

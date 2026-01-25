@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Healthcare Hub{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Welcome, {{ username }}!</h1>
+    <p>This is your personal healthcare portal. Stay proactive about your health with our AI tools.</p>
+</div>
+
+<div style="display: flex; gap: 2rem; flex-wrap: wrap; justify-content: center; width: 100%; max-width: 1000px;">
+    <div class="card" style="flex: 1; min-width: 300px;">
+        <h3>AI Health Portal</h3>
+        <p style="margin: 1rem 0;">Submit your latest health metrics (BP, Sugar, Cholesterol) for a comprehensive AI
+            evaluation.</p>
+        {% if has_data %}
+        <a href="{{ url_for('health_report') }}" class="btn">View Latest Report</a>
+        <a href="{{ url_for('health_data') }}" class="btn btn-secondary" style="margin-top: 0.5rem;">Update Data</a>
+        {% else %}
+        <a href="{{ url_for('health_data') }}" class="btn">Start AI Analysis</a>
+        {% endif %}
+    </div>
+
+    <div class="card" style="flex: 1; min-width: 300px;">
+        <h3>Your Profile</h3>
+        <p style="margin: 1rem 0;">Manage your records, book appointments, and view your medical history.</p>
+        <button class="btn btn-secondary" disabled>Edit Profile (Coming Soon)</button>
+        <a href="{{ url_for('logout') }}" class="btn btn-secondary" style="margin-top: 0.5rem;">Logout</a>
+    </div>
+</div>
+{% endblock %}

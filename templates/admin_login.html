@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Login - Healthcare Hub{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Admin Access</h2>
+    <form method="POST">
+        <div class="form-group">
+            <label for="admin_u">Admin Username</label>
+            <input type="text" id="admin_u" name="admin_u" class="form-control" required autocomplete="new-password">
+        </div>
+        <div class="form-group">
+            <label for="admin_p">Admin Password</label>
+            <input type="password" id="admin_p" name="admin_p" class="form-control" required
+                autocomplete="new-password">
+        </div>
+        <button type="submit" class="btn">Access Dashboard</button>
+    </form>
+    <p style="text-align: center; margin-top: 1.5rem; font-size: 0.9rem; color: var(--danger-color);">
+        Restricted area. Unauthorized access is prohibited.
+    </p>
+</div>
+{% endblock %}

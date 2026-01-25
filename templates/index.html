@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Welcome - Healthcare Hub{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Your Health, Our Priority</h1>
+    <p>Experience the next generation of healthcare management. Secure, modern, and built for you.</p>
+    <div style="display: flex; gap: 1rem; justify-content: center;">
+        <a href="{{ url_for('register') }}" class="btn"
+            style="width: 200px; text-decoration: none; display: inline-block;">Get Started</a>
+        <a href="{{ url_for('login') }}" class="btn btn-secondary"
+            style="width: 200px; text-decoration: none; display: inline-block;">Login</a>
+    </div>
+</div>
+{% endblock %}

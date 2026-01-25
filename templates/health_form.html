@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Comprehensive Health Profile - Healthcare Hub{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Comprehensive Health Profile</h1>
+    <p>Please provide the following details for a precise AI health assessment.</p>
+</div>
+
+<div class="card" style="max-width: 900px; padding: 3rem;">
+    <form method="POST">
+        <!-- Section 1: Demographics -->
+        <h3
+            style="margin-bottom: 1.5rem; color: var(--accent-color); border-bottom: 2px solid var(--primary-color); display: inline-block;">
+            1. Demographics & Background</h3>
+        <div class="form-group"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <label for="sex">Sex</label>
+                <select id="sex" name="sex" class="form-control" required>
+                    <option value="" disabled selected>Select</option>
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                </select>
+            </div>
+            <div>
+                <label for="ethnicity">Ethnicity</label>
+                <input type="text" id="ethnicity" name="ethnicity" class="form-control"
+                    placeholder="e.g. Asian, Caucasian">
+            </div>
+            <div>
+                <label for="family_history">Family Medical History</label>
+                <input type="text" id="family_history" name="family_history" class="form-control"
+                    placeholder="e.g. Heart, Diabetes, Cancer">
+            </div>
+        </div>
+
+        <!-- Section 2: Lifestyle -->
+        <h3
+            style="margin: 2.5rem 0 1.5rem; color: var(--accent-color); border-bottom: 2px solid var(--primary-color); display: inline-block;">
+            2. Lifestyle Habits</h3>
+        <div class="form-group"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <label for="smoking">Smoking Status</label>
+                <select id="smoking" name="smoking" class="form-control" required>
+                    <option value="No">Non-Smoker</option>
+                    <option value="Yes">Smoker</option>
+                </select>
+            </div>
+            <div>
+                <label for="alcohol">Alcohol Consumption</label>
+                <select id="alcohol" name="alcohol" class="form-control" required>
+                    <option value="None">None</option>
+                    <option value="Occasional">Occasional</option>
+                    <option value="Regular">Regular</option>
+                </select>
+            </div>
+            <div>
+                <label for="activity">Physical Activity</label>
+                <select id="activity" name="activity" class="form-control" required>
+                    <option value="Sedentary">Sedentary</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="Active">Highly Active</option>
+                </select>
+            </div>
+            <div>
+                <label for="diet">Diet Quality</label>
+                <select id="diet" name="diet" class="form-control" required>
+                    <option value="Poor">Poor</option>
+                    <option value="Average">Average</option>
+                    <option value="Healthy">Healthy / Balanced</option>
+                </select>
+            </div>
+            <div>
+                <label for="sleep">Sleep Duration (hrs/day)</label>
+                <input type="number" step="0.5" id="sleep" name="sleep" class="form-control" placeholder="7">
+            </div>
+            <div>
+                <label for="environmental">Environmental Exposure</label>
+                <select id="environmental" name="environmental" class="form-control" required>
+                    <option value="Low">Low (Safe)</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="High">High (Risky)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Section 3: Body Measurements -->
+        <h3
+            style="margin: 2.5rem 0 1.5rem; color: var(--accent-color); border-bottom: 2px solid var(--primary-color); display: inline-block;">
+            3. Biometrics</h3>
+        <div class="form-group"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <label for="height">Height (cm)</label>
+                <input type="number" step="0.1" id="height" name="height" class="form-control" required>
+            </div>
+            <div>
+                <label for="weight">Weight (kg)</label>
+                <input type="number" step="0.1" id="weight" name="weight" class="form-control" required>
+            </div>
+            <div>
+                <label for="waist">Waist Circumference (cm)</label>
+                <input type="number" step="0.1" id="waist" name="waist" class="form-control" required>
+            </div>
+            <div>
+                <label for="bp_systolic">BP Systolic</label>
+                <input type="number" id="bp_systolic" name="bp_systolic" class="form-control" required>
+            </div>
+            <div>
+                <label for="bp_diastolic">BP Diastolic</label>
+                <input type="number" id="bp_diastolic" name="bp_diastolic" class="form-control" required>
+            </div>
+        </div>
+
+        <!-- Section 4: Lab Results -->
+        <h3
+            style="margin: 2.5rem 0 1.5rem; color: var(--accent-color); border-bottom: 2px solid var(--primary-color); display: inline-block;">
+            4. Clinical / Lab Results</h3>
+        <div class="form-group"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <label for="fasting_glucose">Fasting Glucose (mg/dL)</label>
+                <input type="number" id="fasting_glucose" name="fasting_glucose" class="form-control">
+            </div>
+            <div>
+                <label for="hba1c">HbA1c (%)</label>
+                <input type="number" step="0.1" id="hba1c" name="hba1c" class="form-control">
+            </div>
+            <div>
+                <label for="cholesterol">Total Cholesterol</label>
+                <input type="number" id="cholesterol" name="cholesterol" class="form-control">
+            </div>
+            <div>
+                <label for="ldl">LDL (Bad Cholesterol)</label>
+                <input type="number" id="ldl" name="ldl" class="form-control">
+            </div>
+            <div>
+                <label for="hdl">HDL (Good Cholesterol)</label>
+                <input type="number" id="hdl" name="hdl" class="form-control">
+            </div>
+            <div>
+                <label for="triglycerides">Triglycerides</label>
+                <input type="number" id="triglycerides" name="triglycerides" class="form-control">
+            </div>
+        </div>
+
+        <button type="submit" class="btn" style="height: 60px; font-size: 1.2rem; margin-top: 3rem;">Submit for Deep AI
+            Analysis</button>
+    </form>
+</div>
+{% endblock %}
