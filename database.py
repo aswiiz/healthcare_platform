@@ -44,7 +44,6 @@ def init_db():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 user_id INTEGER NOT NULL,
                 sex TEXT,
-                ethnicity TEXT,
                 family_history TEXT,
                 smoking TEXT,
                 alcohol TEXT,

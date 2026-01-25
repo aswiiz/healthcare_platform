@@ -68,7 +68,6 @@ def health_data():
         # Collect all new data fields
         health_data_dict = {
             'sex': f.get('sex'),
-            'ethnicity': f.get('ethnicity'),
             'family_history': f.get('family_history'),
             'smoking': f.get('smoking'),
             'alcohol': f.get('alcohol'),
