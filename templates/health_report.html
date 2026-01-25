@@ -18,17 +18,22 @@
             <div style="padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 8px;"><strong>BMI:</strong>
                 {{ analysis['bmi'] }}</div>
             <div style="padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 8px;"><strong>BP:</strong> {{
-                record['bp_systolic'] }}/{{ record['bp_diastolic'] }}</div>
+                record['bp_systolic'] }}/{{ record['bp_diastolic'] }} ({{ analysis['bp_status'] }})</div>
+            <div style="padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 8px;"><strong>Sugar:</strong>
+                {{ analysis['sugar_status'] }}</div>
             <div style="padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 8px;"><strong>HbA1c:</strong>
                 {{ record['hba1c'] }}%</div>
             <div style="padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 8px;">
-                <strong>Glucose:</strong> {{ record['fasting_glucose'] }}</div>
+                <strong>Glucose:</strong> {{ record['fasting_glucose'] }} mg/dL
+            </div>
             <div style="padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 8px;">
-                <strong>Cholesterol:</strong> {{ record['cholesterol'] }}</div>
+                <strong>Cholesterol:</strong> {{ record['cholesterol'] }}
+            </div>
             <div style="padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 8px;"><strong>LDL:</strong>
                 {{ record['ldl'] }}</div>
             <div style="padding: 0.5rem; background: rgba(255,255,255,0.2); border-radius: 8px;">
-                <strong>Triglycerides:</strong> {{ record['triglycerides'] }}</div>
+                <strong>Triglycerides:</strong> {{ record['triglycerides'] }}
+            </div>
         </div>
         <div style="margin-top: 2rem;">
             <h4>Lifestyles</h4>

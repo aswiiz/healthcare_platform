@@ -94,15 +94,28 @@ def health_data():
         
         bmi = health_data_dict['weight'] / ((health_data_dict['height']/100)**2)
         
+        # New: Specific Status Checks
+        bp_status = "Normal"
+        if health_data_dict['bp_systolic'] > 140 or health_data_dict['bp_diastolic'] > 90:
+            bp_status = "High"
+        elif health_data_dict['bp_systolic'] < 90 or health_data_dict['bp_diastolic'] < 60:
+            bp_status = "Low"
+            
+        sugar_status = "Normal"
+        if health_data_dict['fasting_glucose'] > 126:
+            sugar_status = "High (Diabetic)"
+        elif health_data_dict['fasting_glucose'] > 100:
+            sugar_status = "High (Prediabetic)"
+            
         # Heart Disease Logic
-        if health_data_dict['bp_systolic'] > 140: heart_prob += 20
+        if bp_status == "High": heart_prob += 20
         if health_data_dict['smoking'] == 'Yes': heart_prob += 25
         if health_data_dict['cholesterol'] > 240: heart_prob += 15
         if 'heart' in health_data_dict['family_history'].lower(): heart_prob += 20
         if bmi > 30: heart_prob += 10
         
         # Diabetes Logic
-        if health_data_dict['fasting_glucose'] > 126: diabetes_prob += 40
+        if sugar_status.startswith("High"): diabetes_prob += 40
         if health_data_dict['hba1c'] > 6.5: diabetes_prob += 45
         if 'diabetes' in health_data_dict['family_history'].lower(): diabetes_prob += 15
         
@@ -119,12 +132,14 @@ def health_data():
 
         analysis = {
             "bmi": round(bmi, 2),
+            "bp_status": bp_status,
+            "sugar_status": sugar_status,
             "conditions": [
                 {"condition": "Heart Disease Risk", "probability": heart_prob},
                 {"condition": "Diabetes Risk", "probability": diabetes_prob},
                 {"condition": "Cancer Risk", "probability": cancer_prob}
             ],
-            "needs_doctor": heart_prob > 50 or diabetes_prob > 50 or cancer_prob > 40
+            "needs_doctor": heart_prob > 50 or diabetes_prob > 50 or cancer_prob > 40 or bp_status != "Normal" or sugar_status != "Normal"
         }
         
         database.save_health_data(user_id, health_data_dict, json.dumps(analysis))
