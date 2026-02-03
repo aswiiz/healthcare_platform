@@ -2,7 +2,23 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import database
 import json
 import random
+import math
+import pickle
+import numpy as np
 from datetime import datetime
+
+# Load the trained ML models
+try:
+    with open('healthcare_model.pkl', 'rb') as f:
+        ml_assets = pickle.load(f)
+        ML_MODEL_RISK = ml_assets['model_risk']
+        ML_MODEL_SCORE = ml_assets['model_score']
+        ML_SCALER = ml_assets['scaler']
+        ML_ENCODERS = ml_assets['encoders']
+        ML_READY = True
+except Exception as e:
+    print(f"ML Model loading failed: {e}")
+    ML_READY = False
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key' # In a real app, use a secure secret key
@@ -87,58 +103,81 @@ def health_data():
             'environmental': f.get('environmental')
         }
 
-        # --- Enhanced AI Simulation Logic ---
-        heart_prob = 10
-        diabetes_prob = 10
-        cancer_prob = 5
+        # --- Machine Learning Workflow Integration ---
         
-        bmi = health_data_dict['weight'] / ((health_data_dict['height']/100)**2)
-        
-        # New: Specific Status Checks
-        bp_status = "Normal"
-        if health_data_dict['bp_systolic'] > 140 or health_data_dict['bp_diastolic'] > 90:
-            bp_status = "High"
-        elif health_data_dict['bp_systolic'] < 90 or health_data_dict['bp_diastolic'] < 60:
-            bp_status = "Low"
+        if ML_READY:
+            try:
+                # Prepare features for the ML models
+                # Features: [age, gender, bmi, bp_systolic, fasting_glucose, smoking, cholesterol, activity_level]
+                gender_enc = ML_ENCODERS['gender'].transform([health_data_dict['sex']])[0]
+                smoking_enc = ML_ENCODERS['smoking'].transform([health_data_dict['smoking']])[0]
+                # Default activity to Moderate if not found (simple fallback)
+                try:
+                    activity_enc = ML_ENCODERS['activity'].transform([health_data_dict['activity']])[0]
+                except:
+                    activity_enc = 1 # Moderate
+                
+                features = np.array([[
+                    float(f.get('age', 30)),
+                    gender_enc,
+                    bmi,
+                    float(health_data_dict['bp_systolic']),
+                    float(health_data_dict['fasting_glucose']),
+                    smoking_enc,
+                    float(health_data_dict['cholesterol']),
+                    activity_enc
+                ]])
+                
+                # Scale features
+                features_scaled = ML_SCALER.transform(features)
+                
+                # 1. LOGISTIC REGRESSION for Disease Probability
+                # We use predict_proba for probabilities
+                heart_prob = round(ML_MODEL_RISK.predict_proba(features_scaled)[0][1] * 100, 1)
+                
+                # For diabetes and cancer, we can use the same model or simulated ones if we only had one target
+                # Here we'll reuse the risk model with some adjustments for demonstration
+                diabetes_prob = min(heart_prob + random.randint(-10, 10), 95)
+                cancer_prob = min(heart_prob * 0.5 + random.randint(-5, 5), 90)
+
+                # 2. LINEAR REGRESSION for Overall Health Score
+                health_score = round(ML_MODEL_SCORE.predict(features_scaled)[0], 1)
+                health_score = max(min(health_score, 100), 0) # Clamp
+                
+            except Exception as e:
+                print(f"Prediction Error: {e}")
+                # Fallback to manual logic if prediction fails
+                ML_READY = False 
+
+        if not ML_READY:
+            # Fallback Manual Logic (Simplified Regression)
+            def sigmoid(z):
+                return 1 / (1 + math.exp(-z))
             
-        sugar_status = "Normal"
-        if health_data_dict['fasting_glucose'] > 126:
-            sugar_status = "High (Diabetic)"
-        elif health_data_dict['fasting_glucose'] > 100:
-            sugar_status = "High (Prediabetic)"
-            
-        # Heart Disease Logic
-        if bp_status == "High": heart_prob += 20
-        if health_data_dict['smoking'] == 'Yes': heart_prob += 25
-        if health_data_dict['cholesterol'] > 240: heart_prob += 15
-        if 'heart' in health_data_dict['family_history'].lower(): heart_prob += 20
-        if bmi > 30: heart_prob += 10
-        
-        # Diabetes Logic
-        if sugar_status.startswith("High"): diabetes_prob += 40
-        if health_data_dict['hba1c'] > 6.5: diabetes_prob += 45
-        if 'diabetes' in health_data_dict['family_history'].lower(): diabetes_prob += 15
-        
-        # Cancer Logic
-        if health_data_dict['smoking'] == 'Yes': cancer_prob += 30
-        if 'cancer' in health_data_dict['family_history'].lower(): cancer_prob += 20
-        if health_data_dict['environmental'] == 'High': cancer_prob += 15
-        if health_data_dict['diet'] == 'Poor': cancer_prob += 10
-        
-        # Cap probabilities at 95%
-        heart_prob = min(heart_prob + random.randint(-5, 5), 95)
-        diabetes_prob = min(diabetes_prob + random.randint(-5, 5), 95)
-        cancer_prob = min(cancer_prob + random.randint(-5, 5), 95)
+            z_heart = -10.0 + (0.05 * float(f.get('age', 30))) + (0.04 * (health_data_dict['bp_systolic'] - 120))
+            heart_prob = round(sigmoid(z_heart) * 100, 1)
+            diabetes_prob = 10.0
+            cancer_prob = 5.0
+            health_score = 75.0
+
+        insurance_rec = []
+        if heart_prob > 60: insurance_rec.append("Critical Illness Cover (Cardiac Specialist)")
+        if diabetes_prob > 60: insurance_rec.append("Lifestyle Disease Protection Plan")
+        if cancer_prob > 50: insurance_rec.append("Cancer Care Shield")
+        if not insurance_rec and (heart_prob > 30 or diabetes_prob > 30):
+            insurance_rec.append("Standard Comprehensive Health Insurance")
 
         analysis = {
             "bmi": round(bmi, 2),
             "bp_status": bp_status,
             "sugar_status": sugar_status,
+            "health_score": health_score,
             "conditions": [
                 {"condition": "Heart Disease Risk", "probability": heart_prob},
                 {"condition": "Diabetes Risk", "probability": diabetes_prob},
                 {"condition": "Cancer Risk", "probability": cancer_prob}
             ],
+            "insurance_recommendations": insurance_rec,
             "needs_doctor": heart_prob > 50 or diabetes_prob > 50 or cancer_prob > 40 or bp_status != "Normal" or sugar_status != "Normal"
         }
         
@@ -181,6 +220,71 @@ def generate_ticket():
     ticket_no = request.args.get('ticket')
     return render_template('ticket.html', ticket_no=ticket_no, date=datetime.now().strftime("%B %d, %Y"))
 
+@app.route('/health/diary', methods=['GET', 'POST'])
+def health_diary():
+    if 'user_id' not in session or session.get('role') != 'user':
+        return redirect(url_for('login'))
+    
+    if request.method == 'POST':
+        mood = request.form.get('mood')
+        steps = int(request.form.get('steps', 0))
+        water = float(request.form.get('water', 0))
+        sleep = float(request.form.get('sleep', 0))
+        symptoms = request.form.get('symptoms')
+        note = request.form.get('note')
+        
+        database.save_diary_entry(session['user_id'], mood, steps, water, sleep, symptoms, note)
+        flash('Diary entry saved!', 'success')
+        return redirect(url_for('health_diary'))
+        
+    entries = database.get_diary_entries(session['user_id'])
+    return render_template('health_diary.html', entries=entries)
+
+@app.route('/medical/records')
+def medical_records():
+    if 'user_id' not in session or session.get('role') != 'user':
+        return redirect(url_for('login'))
+    
+    records = database.get_health_data(session['user_id'])
+    treatments = database.get_treatments(session['user_id'])
+    
+    processed_records = []
+    for r in records:
+        processed_records.append({
+            'data': r,
+            'analysis': json.loads(r['analysis_result'])
+        })
+        
+    return render_template('medical_records.html', records=processed_records, treatments=treatments)
+
+@app.route('/disease/info')
+def disease_info():
+    if 'user_id' not in session or session.get('role') != 'user':
+        return redirect(url_for('login'))
+    return render_template('disease_info.html')
+
+@app.route('/api/chatbot', methods=['POST'])
+def chatbot():
+    user_msg = request.json.get('message', '').lower()
+    
+    responses = {
+        "hello": "Hello! I am your Health Assistant. How can I help you today?",
+        "hi": "Hi there! I can help you with health info or site navigation.",
+        "diabetes": "Diabetes is a chronic condition that affects how your body turns food into energy. Dos: Exercise, eat fiber. Don'ts: Sugary drinks, smoking.",
+        "heart disease": "Heart disease refers to several types of heart conditions. Dos: Low salt diet, regular checkups. Don'ts: High trans fats, sedentary lifestyle.",
+        "emergency": "If you are having a medical emergency, please call your local emergency services (like 911) immediately.",
+        "first aid": "For minor cuts: Clean with water, apply antiseptic, and bandage. For burns: Run under cool water (not ice) for 10-15 mins.",
+        "insurance": "We recommend insurance plans based on your health assessment risks. Check your latest Health Report for specific suggestions."
+    }
+    
+    reply = "I'm not sure about that. Try asking about 'diabetes', 'heart disease', 'first aid', or 'insurance'."
+    for key in responses:
+        if key in user_msg:
+            reply = responses[key]
+            break
+            
+    return {"reply": reply}
+
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
     if request.method == 'POST':
@@ -202,8 +306,35 @@ def admin_dashboard():
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
     
-    users = database.get_all_users()
-    return render_template('admin_dashboard.html', users=users)
+    query = request.args.get('search', '')
+    if query:
+        users = database.search_users(query)
+    else:
+        users = database.get_all_users()
+    return render_template('admin_dashboard.html', users=users, search_query=query)
+
+@app.route('/admin/add_patient', methods=['GET', 'POST'])
+def admin_add_patient():
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    if request.method == 'POST':
+        name = request.form['name']
+        age = request.form['age']
+        gender = request.form['gender']
+        phone = request.form['phone']
+        address = request.form['address']
+        blood_group = request.form['blood_group']
+        username = request.form['uid_reg']
+        password = request.form['pwd_reg']
+        
+        if database.register_user(name, age, gender, phone, address, blood_group, username, password):
+            flash('Patient added successfully!', 'success')
+            return redirect(url_for('admin_dashboard'))
+        else:
+            flash('Username already exists.', 'danger')
+            
+    return render_template('register.html', is_admin=True) # Reuse register.html with a flag
 
 @app.route('/admin/user/<int:user_id>')
 def admin_user_view(user_id):
@@ -212,6 +343,7 @@ def admin_user_view(user_id):
     
     user = database.get_user_by_id(user_id)
     health_records = database.get_health_data(user_id)
+    treatments = database.get_treatments(user_id)
     
     # Process records for display
     processed_records = []
@@ -221,7 +353,47 @@ def admin_user_view(user_id):
             'analysis': json.loads(r['analysis_result'])
         })
         
-    return render_template('admin_user_details.html', user=user, records=processed_records)
+    return render_template('admin_user_details.html', user=user, records=processed_records, treatments=treatments)
+
+@app.route('/admin/user/<int:user_id>/add_treatment', methods=['POST'])
+def admin_add_treatment(user_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    condition = request.form.get('condition')
+    plan = request.form.get('plan')
+    
+    database.add_treatment(user_id, condition, plan)
+    flash('Treatment plan added.', 'success')
+    return redirect(url_for('admin_user_view', user_id=user_id))
+
+@app.route('/admin/update_analysis/<int:record_id>', methods=['POST'])
+def admin_update_analysis(record_id):
+    if not session.get('admin_logged_in'):
+        return redirect(url_for('admin_login'))
+    
+    user_id = request.form.get('user_id')
+    new_analysis_text = request.form.get('analysis_text')
+    
+    # In a real app, you'd want to be more careful with JSON structure
+    # Here we'll just store the text if it's not JSON, or try to keep it as JSON
+    try:
+        # Check if it's valid JSON
+        json.loads(new_analysis_text)
+        database.update_health_analysis(record_id, new_analysis_text)
+    except:
+        # If not, wrap it in a simple JSON structure or just store as text
+        # For simplicity in this demo, we'll just update it as a string
+        # Actually, let's just update the 'conditions' part or similar
+        # For now, let's assume the admin provides a summary
+        current_record = next((r for r in database.get_health_data(user_id) if r['id'] == record_id), None)
+        if current_record:
+            analysis = json.loads(current_record['analysis_result'])
+            analysis['manual_summary'] = new_analysis_text
+            database.update_health_analysis(record_id, json.dumps(analysis))
+
+    flash('Diagnosis updated.', 'success')
+    return redirect(url_for('admin_user_view', user_id=user_id))
 
 @app.route('/logout')
 def logout():

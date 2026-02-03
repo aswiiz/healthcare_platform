@@ -78,6 +78,33 @@ def init_db():
             )
         ''')
 
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS treatments (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                condition TEXT NOT NULL,
+                treatment_plan TEXT NOT NULL,
+                status TEXT DEFAULT 'Ongoing',
+                start_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        ''')
+
+        conn.execute('''
+            CREATE TABLE IF NOT EXISTS health_diary (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                user_id INTEGER NOT NULL,
+                mood TEXT,
+                steps INTEGER,
+                water_intake REAL,
+                sleep_hours REAL,
+                symptoms TEXT,
+                note TEXT,
+                date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                FOREIGN KEY (user_id) REFERENCES users (id)
+            )
+        ''')
+
 
 def save_health_data(user_id, data_dict, analysis):
     columns = ['user_id', 'analysis_result'] + list(data_dict.keys())
@@ -139,6 +166,52 @@ def check_user(username, password):
 def get_all_users():
     with get_db_connection() as conn:
         return conn.execute('SELECT * FROM users').fetchall()
+
+
+def search_users(query):
+    with get_db_connection() as conn:
+        q = f"%{query}%"
+        return conn.execute('''
+            SELECT * FROM users 
+            WHERE name LIKE ? OR phone LIKE ? OR username LIKE ?
+        ''', (q, q, q)).fetchall()
+
+
+def add_treatment(user_id, condition, treatment_plan):
+    with get_db_connection() as conn:
+        conn.execute('''
+            INSERT INTO treatments (user_id, condition, treatment_plan)
+            VALUES (?, ?, ?)
+        ''', (user_id, condition, treatment_plan))
+
+
+def get_treatments(user_id):
+    with get_db_connection() as conn:
+        return conn.execute('''
+            SELECT * FROM treatments WHERE user_id = ? ORDER BY id DESC
+        ''', (user_id,)).fetchall()
+
+
+def update_health_analysis(record_id, analysis_result):
+    with get_db_connection() as conn:
+        conn.execute('''
+            UPDATE health_data SET analysis_result = ? WHERE id = ?
+        ''', (analysis_result, record_id))
+
+
+def save_diary_entry(user_id, mood, steps, water, sleep, symptoms, note):
+    with get_db_connection() as conn:
+        conn.execute('''
+            INSERT INTO health_diary (user_id, mood, steps, water_intake, sleep_hours, symptoms, note)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+        ''', (user_id, mood, steps, water, sleep, symptoms, note))
+
+
+def get_diary_entries(user_id):
+    with get_db_connection() as conn:
+        return conn.execute('''
+            SELECT * FROM health_diary WHERE user_id = ? ORDER BY date DESC LIMIT 30
+        ''', (user_id,)).fetchall()
 
 
 if __name__ == '__main__':

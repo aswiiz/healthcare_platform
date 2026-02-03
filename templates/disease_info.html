@@ -1,0 +1,170 @@
+{% extends "base.html" %}
+
+{% block title %}Knowledge Base - Healthcare Hub{% endblock %}
+
+{% block content %}
+<div class="hero">
+    <h1>Health Knowledge Repository</h1>
+    <p>Empowering you with essential information on chronic conditions, wellness habits, and emergency response
+        guidelines.</p>
+</div>
+
+<div
+    style="width: 100%; max-width: 1250px; display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 2.5rem;">
+    <!-- Heart Disease -->
+    <div class="card" style="border-top: 5px solid #ef4444;">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+            <div
+                style="width: 45px; height: 45px; background: #fee2e2; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: #ef4444;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                </svg>
+            </div>
+            <h3 style="margin: 0; color: #991b1b;">Cardiovascular Health</h3>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+            <p
+                style="font-weight: 700; font-size: 0.8rem; color: #b91c1c; text-transform: uppercase; margin-bottom: 0.75rem;">
+                Preventative Habits</p>
+            <ul
+                style="padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.95rem;">
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #10b981;">✔</span> 150 mins of moderate
+                    cardio weekly.</li>
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #10b981;">✔</span> High fiber, low-sodium
+                    dietary intake.</li>
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #ef4444;">✘</span> Avoid trans fats and
+                    processed meats.</li>
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #ef4444;">✘</span> Zero-tolerance for
+                    tobacco use.</li>
+            </ul>
+        </div>
+
+        <div style="background: #fff1f2; padding: 1.5rem; border-radius: 16px; border: 1px solid #fee2e2;">
+            <h5 style="color: #991b1b; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                Emergency: Cardiac Event
+            </h5>
+            <ol style="font-size: 0.85rem; padding-left: 1.25rem; color: #9f1239; line-height: 1.6;">
+                <li>Immediately dispatch emergency services.</li>
+                <li>Position the patient comfortably sitting up.</li>
+                <li>Loosen obstructive clothing around neck/chest.</li>
+                <li>Keep patient calm until medics arrive.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- Diabetes -->
+    <div class="card" style="border-top: 5px solid var(--primary-blue);">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+            <div
+                style="width: 45px; height: 45px; background: #e0f2fe; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary-blue);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                </svg>
+            </div>
+            <h3 style="margin: 0; color: var(--dark-blue);">Metabolic Wellness</h3>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+            <p
+                style="font-weight: 700; font-size: 0.8rem; color: var(--dark-blue); text-transform: uppercase; margin-bottom: 0.75rem;">
+                Glycemic Management</p>
+            <ul
+                style="padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.95rem;">
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #10b981;">✔</span> Consistent glucose
+                    monitoring.</li>
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #10b981;">✔</span> Emphasis on complex
+                    carbohydrates.</li>
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #ef4444;">✘</span> Avoid refined sugars and
+                    high-fructose syrups.</li>
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #ef4444;">✘</span> Never skip prescribed
+                    insulin or clinical meals.</li>
+            </ul>
+        </div>
+
+        <div style="background: #f0f9ff; padding: 1.5rem; border-radius: 16px; border: 1px solid #e0f2fe;">
+            <h5 style="color: #0369a1; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                    <line x1="12" y1="9" x2="12" y2="13" />
+                    <line x1="12" y1="17" x2="12.01" y2="17" />
+                </svg>
+                Emergency: Hypoglycemic Shock
+            </h5>
+            <ol style="font-size: 0.85rem; padding-left: 1.25rem; color: #075985; line-height: 1.6;">
+                <li>Administer 15g of fast-acting carbs (juice/honey).</li>
+                <li>Wait 15 mins and re-verify glucose levels.</li>
+                <li>Verify consciousness; never feed an unconscious patient.</li>
+                <li>Seek emergency help if levels remain unstable.</li>
+            </ol>
+        </div>
+    </div>
+
+    <!-- General Wellness -->
+    <div class="card" style="border-top: 5px solid var(--primary-green);">
+        <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+            <div
+                style="width: 45px; height: 45px; background: #dcfce7; border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary-green);">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+            </div>
+            <h3 style="margin: 0; color: var(--dark-green);">Holistic Vitality</h3>
+        </div>
+
+        <div style="margin-bottom: 2rem;">
+            <p
+                style="font-weight: 700; font-size: 0.8rem; color: var(--dark-green); text-transform: uppercase; margin-bottom: 0.75rem;">
+                Foundational Health</p>
+            <ul
+                style="padding: 0; list-style: none; display: flex; flex-direction: column; gap: 0.75rem; font-size: 0.95rem;">
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #10b981;">✔</span> 8+ cups of verified
+                    hydration daily.</li>
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #10b981;">✔</span> Minimum 7.5 hours of
+                    circadian rest.</li>
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #ef4444;">✘</span> Late-night blue light and
+                    caffeine intake.</li>
+                <li style="display: flex; gap: 0.6rem;"><span style="color: #ef4444;">✘</span> Prolonged sedentary
+                    post-meal behavior.</li>
+            </ul>
+        </div>
+
+        <div style="background: #f0fdf4; padding: 1.5rem; border-radius: 16px; border: 1px solid #dcfce7;">
+            <h5 style="color: #166534; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+                </svg>
+                Essential First Aid
+            </h5>
+            <ul
+                style="font-size: 0.85rem; padding-left: 1.25rem; color: #166534; line-height: 1.6; list-style-type: none;">
+                <li style="margin-bottom: 0.5rem;"><strong>Thermal Burns:</strong> Cool running water for 15+ minutes.
+                </li>
+                <li style="margin-bottom: 0.5rem;"><strong>Soft Tissue:</strong> Use R.I.C.E method (Rest, Ice,
+                    Compress, Elevate).</li>
+                <li><strong>Minor Scrapes:</strong> Flush with saline, apply sterile dressing.</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+<div style="margin-top: 4rem; text-align: center;">
+    <a href="{{ url_for('user_home') }}" class="btn btn-secondary" style="height: 50px; padding: 0 2rem;">Return to
+        Control Center</a>
+</div>
+{% endblock %}
