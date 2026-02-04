@@ -58,3 +58,4 @@ The database was created programmatically using Python's `sqlite3` module. The s
 1. **Install Dependencies**: `pip install flask`
 2. **Run Application**: `python app.py`
 3. **Admin Panel**: Accessible at `/admin/login`.
+## Installing collected packages: threadpoolctl, six, packaging, numpy, markupsafe, joblib, itsdangerous, dnspython, click, blinker, werkzeug, scipy, python-dateutil, pymongo, jinja2, gunicorn, scikit-learn, pandas, Flask
