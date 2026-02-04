@@ -7,6 +7,9 @@ import math
 import pickle
 import numpy as np
 from datetime import datetime
+import mimetypes
+
+mimetypes.add_type('text/css', '.css')
 
 # Load the trained ML models
 try:
