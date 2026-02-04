@@ -6,4 +6,6 @@ services:
     startCommand: gunicorn app:app
     envVars:
       - key: PYTHON_VERSION
-        value: 3.10.0
+        value: 3.10.12
+      - key: MONGO_URI
+        sync: false # Set this in Render Dashboard

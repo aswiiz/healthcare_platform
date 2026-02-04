@@ -3,10 +3,7 @@ import database
 def test_registration():
     print("Testing Registration...")
     # Clean up previous test if any
-    conn = database.get_db_connection()
-    conn.execute("DELETE FROM users WHERE username = 'testuser'")
-    conn.commit()
-    conn.close()
+    database.db.users.delete_one({"username": "testuser"})
 
     # Register user
     success = database.register_user(

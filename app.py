@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+import os
 import database
 import json
 import random
@@ -81,6 +82,19 @@ def health_data():
         user_id = session['user_id']
         f = request.form
         
+        # Get user details for age
+        user = database.get_user_by_id(user_id)
+        user_age = user['age'] if user else 30
+
+        # Helper to safely parse numbers
+        def parse_num(val, default=0, type_func=float):
+            try:
+                if val is None or val.strip() == '':
+                    return default
+                return type_func(val)
+            except:
+                return default
+
         # Collect all new data fields
         health_data_dict = {
             'sex': f.get('sex'),
@@ -89,23 +103,42 @@ def health_data():
             'alcohol': f.get('alcohol'),
             'activity': f.get('activity'),
             'diet': f.get('diet'),
-            'sleep': float(f.get('sleep', 0)),
-            'height': float(f.get('height', 0)),
-            'weight': float(f.get('weight', 0)),
-            'bp_systolic': int(f.get('bp_systolic', 0)),
-            'bp_diastolic': int(f.get('bp_diastolic', 0)),
-            'fasting_glucose': int(f.get('fasting_glucose', 0)),
-            'hba1c': float(f.get('hba1c', 0)),
-            'cholesterol': int(f.get('cholesterol', 0)),
-            'ldl': int(f.get('ldl', 0)),
-            'hdl': int(f.get('hdl', 0)),
-            'triglycerides': int(f.get('triglycerides', 0)),
+            'sleep': parse_num(f.get('sleep')),
+            'height': parse_num(f.get('height')),
+            'weight': parse_num(f.get('weight')),
+            'bp_systolic': parse_num(f.get('bp_systolic'), type_func=int),
+            'bp_diastolic': parse_num(f.get('bp_diastolic'), type_func=int),
+            'fasting_glucose': parse_num(f.get('fasting_glucose'), type_func=int),
+            'hba1c': parse_num(f.get('hba1c')),
+            'cholesterol': parse_num(f.get('cholesterol'), type_func=int),
+            'ldl': parse_num(f.get('ldl'), type_func=int),
+            'hdl': parse_num(f.get('hdl'), type_func=int),
+            'triglycerides': parse_num(f.get('triglycerides'), type_func=int),
             'environmental': f.get('environmental')
         }
 
-        # --- Machine Learning Workflow Integration ---
+        # Calculate clinical metrics
+        # BMI = weight(kg) / (height(m)^2)
+        h_m = health_data_dict['height'] / 100
+        bmi = health_data_dict['weight'] / (h_m * h_m) if h_m > 0 else 0
         
-        if ML_READY:
+        # BP Status
+        sys = health_data_dict['bp_systolic']
+        dia = health_data_dict['bp_diastolic']
+        if sys < 120 and dia < 80: bp_status = "Normal"
+        elif sys < 130 and dia < 80: bp_status = "Elevated"
+        elif sys < 140 or dia < 90: bp_status = "Hypertension Stage 1"
+        else: bp_status = "Hypertension Stage 2"
+        
+        # Sugar Status
+        glu = health_data_dict['fasting_glucose']
+        if glu < 100: sugar_status = "Normal"
+        elif glu < 126: sugar_status = "Prediabetes"
+        else: sugar_status = "Diabetes"
+
+        # --- Machine Learning Workflow Integration ---
+        use_ml = ML_READY
+        if use_ml:
             try:
                 # Prepare features for the ML models
                 # Features: [age, gender, bmi, bp_systolic, fasting_glucose, smoking, cholesterol, activity_level]
@@ -118,7 +151,7 @@ def health_data():
                     activity_enc = 1 # Moderate
                 
                 features = np.array([[
-                    float(f.get('age', 30)),
+                    float(user_age),
                     gender_enc,
                     bmi,
                     float(health_data_dict['bp_systolic']),
@@ -147,14 +180,14 @@ def health_data():
             except Exception as e:
                 print(f"Prediction Error: {e}")
                 # Fallback to manual logic if prediction fails
-                ML_READY = False 
+                use_ml = False 
 
-        if not ML_READY:
+        if not use_ml:
             # Fallback Manual Logic (Simplified Regression)
             def sigmoid(z):
                 return 1 / (1 + math.exp(-z))
             
-            z_heart = -10.0 + (0.05 * float(f.get('age', 30))) + (0.04 * (health_data_dict['bp_systolic'] - 120))
+            z_heart = -10.0 + (0.05 * user_age) + (0.04 * (health_data_dict['bp_systolic'] - 120))
             heart_prob = round(sigmoid(z_heart) * 100, 1)
             diabetes_prob = 10.0
             cancer_prob = 5.0
@@ -336,7 +369,7 @@ def admin_add_patient():
             
     return render_template('register.html', is_admin=True) # Reuse register.html with a flag
 
-@app.route('/admin/user/<int:user_id>')
+@app.route('/admin/user/<user_id>')
 def admin_user_view(user_id):
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
@@ -355,7 +388,7 @@ def admin_user_view(user_id):
         
     return render_template('admin_user_details.html', user=user, records=processed_records, treatments=treatments)
 
-@app.route('/admin/user/<int:user_id>/add_treatment', methods=['POST'])
+@app.route('/admin/user/<user_id>/add_treatment', methods=['POST'])
 def admin_add_treatment(user_id):
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
@@ -367,7 +400,7 @@ def admin_add_treatment(user_id):
     flash('Treatment plan added.', 'success')
     return redirect(url_for('admin_user_view', user_id=user_id))
 
-@app.route('/admin/update_analysis/<int:record_id>', methods=['POST'])
+@app.route('/admin/update_analysis/<record_id>', methods=['POST'])
 def admin_update_analysis(record_id):
     if not session.get('admin_logged_in'):
         return redirect(url_for('admin_login'))
@@ -420,4 +453,5 @@ def initialize_database():
             print(f"Database initialization failed: {e}")
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(debug=False, host='0.0.0.0', port=port)

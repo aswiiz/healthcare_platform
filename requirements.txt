@@ -3,3 +3,5 @@ gunicorn
 pandas
 scikit-learn
 numpy
+pymongo
+dnspython
