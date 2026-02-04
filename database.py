@@ -59,8 +59,12 @@ def register_user(name, age, gender, phone, address, blood_group, username, pass
         return False
 
 def check_user(username, password):
-    user = db.users.find_one({"username": username, "password": password})
-    return mongo_to_dict(user)
+    try:
+        user = db.users.find_one({"username": username, "password": password})
+        return mongo_to_dict(user)
+    except Exception as e:
+        print(f"Check User Error: {e}")
+        return None
 
 def get_user_by_id(user_id):
     try:
@@ -70,19 +74,27 @@ def get_user_by_id(user_id):
         return None
 
 def get_all_users():
-    users = db.users.find()
-    return [mongo_to_dict(u) for u in users]
+    try:
+        users = db.users.find()
+        return [mongo_to_dict(u) for u in users]
+    except Exception as e:
+        print(f"Get All Users Error: {e}")
+        return []
 
 def search_users(query):
-    regex_query = {"$regex": query, "$options": "i"}
-    users = db.users.find({
-        "$or": [
-            {"name": regex_query},
-            {"phone": regex_query},
-            {"username": regex_query}
-        ]
-    })
-    return [mongo_to_dict(u) for u in users]
+    try:
+        regex_query = {"$regex": query, "$options": "i"}
+        users = db.users.find({
+            "$or": [
+                {"name": regex_query},
+                {"phone": regex_query},
+                {"username": regex_query}
+            ]
+        })
+        return [mongo_to_dict(u) for u in users]
+    except Exception as e:
+        print(f"Search Users Error: {e}")
+        return []
 
 def save_health_data(user_id, data_dict, analysis):
     try:
@@ -99,30 +111,44 @@ def save_health_data(user_id, data_dict, analysis):
         return False
 
 def get_health_data(user_id):
-    cursor = db.health_data.find({"user_id": user_id}).sort("date", -1)
-    return [mongo_to_dict(d) for d in cursor]
+    try:
+        cursor = db.health_data.find({"user_id": user_id}).sort("date", -1)
+        return [mongo_to_dict(d) for d in cursor]
+    except Exception as e:
+        print(f"Get Health Data Error: {e}")
+        return []
 
 def save_booking(user_id, hospital_name, ticket_no, date):
-    db.bookings.insert_one({
-        "user_id": user_id,
-        "hospital_name": hospital_name,
-        "ticket_no": ticket_no,
-        "date": date,
-        "created_at": datetime.utcnow()
-    })
+    try:
+        db.bookings.insert_one({
+            "user_id": user_id,
+            "hospital_name": hospital_name,
+            "ticket_no": ticket_no,
+            "date": date,
+            "created_at": datetime.utcnow()
+        })
+    except Exception as e:
+        print(f"Save Booking Error: {e}")
 
 def add_treatment(user_id, condition, treatment_plan):
-    db.treatments.insert_one({
-        "user_id": user_id,
-        "condition": condition,
-        "treatment_plan": treatment_plan,
-        "status": "Ongoing",
-        "start_date": datetime.utcnow()
-    })
+    try:
+        db.treatments.insert_one({
+            "user_id": user_id,
+            "condition": condition,
+            "treatment_plan": treatment_plan,
+            "status": "Ongoing",
+            "start_date": datetime.utcnow()
+        })
+    except Exception as e:
+        print(f"Add Treatment Error: {e}")
 
 def get_treatments(user_id):
-    cursor = db.treatments.find({"user_id": user_id}).sort("start_date", -1)
-    return [mongo_to_dict(t) for t in cursor]
+    try:
+        cursor = db.treatments.find({"user_id": user_id}).sort("start_date", -1)
+        return [mongo_to_dict(t) for t in cursor]
+    except Exception as e:
+        print(f"Get Treatments Error: {e}")
+        return []
 
 def update_health_analysis(record_id, analysis_result):
     try:
@@ -135,20 +161,27 @@ def update_health_analysis(record_id, analysis_result):
         return False
 
 def save_diary_entry(user_id, mood, steps, water, sleep, symptoms, note):
-    db.health_diary.insert_one({
-        "user_id": user_id,
-        "mood": mood,
-        "steps": int(steps),
-        "water_intake": float(water),
-        "sleep_hours": float(sleep),
-        "symptoms": symptoms,
-        "note": note,
-        "date": datetime.utcnow()
-    })
+    try:
+        db.health_diary.insert_one({
+            "user_id": user_id,
+            "mood": mood,
+            "steps": int(steps),
+            "water_intake": float(water),
+            "sleep_hours": float(sleep),
+            "symptoms": symptoms,
+            "note": note,
+            "date": datetime.utcnow()
+        })
+    except Exception as e:
+        print(f"Save Diary Error: {e}")
 
 def get_diary_entries(user_id):
-    cursor = db.health_diary.find({"user_id": user_id}).sort("date", -1).limit(30)
-    return [mongo_to_dict(e) for e in cursor]
+    try:
+        cursor = db.health_diary.find({"user_id": user_id}).sort("date", -1).limit(30)
+        return [mongo_to_dict(e) for e in cursor]
+    except Exception as e:
+        print(f"Get Diary Error: {e}")
+        return []
 
 if __name__ == '__main__':
     init_db()

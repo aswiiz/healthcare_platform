@@ -166,16 +166,16 @@ def health_data():
                 
                 # 1. LOGISTIC REGRESSION for Disease Probability
                 # We use predict_proba for probabilities
-                heart_prob = round(ML_MODEL_RISK.predict_proba(features_scaled)[0][1] * 100, 1)
+                heart_prob = float(round(ML_MODEL_RISK.predict_proba(features_scaled)[0][1] * 100, 1))
                 
                 # For diabetes and cancer, we can use the same model or simulated ones if we only had one target
                 # Here we'll reuse the risk model with some adjustments for demonstration
-                diabetes_prob = min(heart_prob + random.randint(-10, 10), 95)
-                cancer_prob = min(heart_prob * 0.5 + random.randint(-5, 5), 90)
+                diabetes_prob = float(min(heart_prob + random.randint(-10, 10), 95))
+                cancer_prob = float(min(heart_prob * 0.5 + random.randint(-5, 5), 90))
 
                 # 2. LINEAR REGRESSION for Overall Health Score
-                health_score = round(ML_MODEL_SCORE.predict(features_scaled)[0], 1)
-                health_score = max(min(health_score, 100), 0) # Clamp
+                health_score = float(round(ML_MODEL_SCORE.predict(features_scaled)[0], 1))
+                health_score = max(min(health_score, 100.0), 0.0) # Clamp
                 
             except Exception as e:
                 print(f"Prediction Error: {e}")
