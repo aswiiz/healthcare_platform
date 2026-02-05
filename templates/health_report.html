@@ -26,64 +26,63 @@
 <div
     style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; width: 100%; max-width: 1250px;">
     <!-- Column 1: Biomarker Dashboard -->
-    <div class="card" style="border-top: 4px solid var(--primary-blue);">
-        <h3 style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem;">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-blue);">
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-            </svg>
-            Biomarker Dashboard
-        </h3>
+    <div class="card" style="border-top: 4px solid var(--primary-blue); height: fit-content;">
+        <div style="margin-bottom: 2rem;">
+            <p style="font-style: italic; color: var(--text-muted); margin-bottom: 2rem;">"{{ analysis['opening'] }}"
+            </p>
 
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
-            <div style="padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
-                <p style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">
-                    Blood Pressure</p>
-                <p style="font-weight: 700; font-size: 1.15em; margin: 0.25rem 0;">{{ record['bp_systolic'] }}/{{
-                    record['bp_diastolic'] }}</p>
-                <span class="badge"
-                    style="background: {% if analysis['bp_status'] == 'Normal' %}#dcfce7; color: #166534;{% else %}#fee2e2; color: #991b1b;{% endif %}">{{
-                    analysis['bp_status'] }}</span>
-            </div>
+            <h3 style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 1.5rem;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary-blue);">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+                Biomarker Dashboard
+            </h3>
 
-            <div style="padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
-                <p style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">
-                    Sugar Status</p>
-                <p style="font-weight: 700; font-size: 1.15em; margin: 0.25rem 0;">{{ record['fasting_glucose'] }} mg/dL
-                </p>
-                <span class="badge"
-                    style="background: {% if 'Normal' in analysis['sugar_status'] %}#dcfce7; color: #166534;{% else %}#fee2e2; color: #991b1b;{% endif %}">{{
-                    analysis['sugar_status'] }}</span>
-            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.25rem;">
+                <div style="padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
+                    <p
+                        style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">
+                        Blood Pressure</p>
+                    <p style="font-weight: 700; font-size: 1.15em; margin: 0.25rem 0;">{{ record['bp_systolic'] }}/{{
+                        record['bp_diastolic'] }}</p>
+                    <span class="badge"
+                        style="background: {% if analysis['bp_status'] == 'Normal' %}#dcfce7; color: #166534;{% else %}#fee2e2; color: #991b1b;{% endif %}">{{
+                        analysis['bp_status'] }}</span>
+                </div>
 
-            <div style="padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
-                <p style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">
-                    Body Mass Index</p>
-                <p style="font-weight: 700; font-size: 1.15em; margin: 0.25rem 0;">{{ analysis['bmi'] }} BMI</p>
-                <span class="badge" style="background: #e0f2fe; color: #0369a1;">MEASURED</span>
-            </div>
-
-            <div style="padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
-                <p style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">
-                    Total Cholesterol</p>
-                <p style="font-weight: 700; font-size: 1.15em; margin: 0.25rem 0;">{{ record['cholesterol'] }} mg/dL</p>
-                <p style="font-size: 0.7rem; color: var(--text-muted); margin: 0;">LDL: {{ record['ldl'] }} | HDL: {{
-                    record['hdl'] }}</p>
+                <div style="padding: 1.25rem; background: #f8fafc; border-radius: 12px; border: 1px solid #f1f5f9;">
+                    <p
+                        style="font-size: 0.7rem; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">
+                        Sugar Status</p>
+                    <p style="font-weight: 700; font-size: 1.15em; margin: 0.25rem 0;">{{ record['fasting_glucose'] }}
+                        mg/dL
+                    </p>
+                    <span class="badge"
+                        style="background: {% if 'Normal' in analysis['sugar_status'] %}#dcfce7; color: #166534;{% else %}#fee2e2; color: #991b1b;{% endif %}">{{
+                        analysis['sugar_status'] }}</span>
+                </div>
             </div>
         </div>
 
-        <div style="margin-top: 2rem; padding: 1.25rem; border-top: 1px solid #e2e8f0;">
-            <h4 style="margin-bottom: 1rem; color: var(--dark-blue);">Lifestyle Context</h4>
+        <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e2e8f0;">
+            <h4 style="color: var(--dark-blue); margin-bottom: 1rem;">Clinical Summary</h4>
+            <p style="line-height: 1.6; color: var(--text-main);">{{ analysis['summary'] }}</p>
+        </div>
+
+        <div style="margin-top: 1.5rem; padding: 1.25rem; background: #f8fafc; border-radius: 12px;">
+            <h4 style="margin-bottom: 1rem; color: var(--dark-blue); font-size: 0.9rem;">Life Context & Mental Wellbeing
+            </h4>
             <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-                <span class="badge" style="background: #f1f5f9;">Smoking: {{ record['smoking'] }}</span>
-                <span class="badge" style="background: #f1f5f9;">Alcohol: {{ record['alcohol'] }}</span>
-                <span class="badge" style="background: #f1f5f9;">Activity: {{ record['activity'] }}</span>
-                <span class="badge" style="background: #f1f5f9;">Environment: {{ record['environmental'] }} Risk</span>
+                <span class="badge" style="background: #e2e8f0;">Mood: {{ record['mood'] }}</span>
+                <span class="badge" style="background: #e2e8f0;">Stress: {{ record['stress_level'] }}</span>
+                <span class="badge" style="background: #e2e8f0;">Sleep: {{ record['sleep_quality'] }}</span>
+                <span class="badge" style="background: #e2e8f0;">Balance: {{ record['lifestyle_balance'] }}</span>
             </div>
         </div>
     </div>
 
-    <!-- Column 2: Disease Prediction -->
+    <!-- Column 2: Disease Prediction & Guidance -->
     <div class="card" style="border-top: 4px solid var(--primary-green);">
         <h3 style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem;">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -93,79 +92,51 @@
             Predictive Risks
         </h3>
 
-        <div style="margin-bottom: 2.5rem;">
-            {% for cond in analysis['conditions'] %}
-            <div style="margin-bottom: 1.75rem;">
-                <div
-                    style="display: flex; justify-content: space-between; margin-bottom: 0.5rem; align-items: flex-end;">
-                    <span style="font-weight: 700; color: var(--text-main);">{{ cond['condition'] }}</span>
-                    <span
-                        style="font-weight: 800; font-size: 1.1rem; color: {% if cond['probability'] > 60 %}var(--danger){% elif cond['probability'] > 30 %}#f59e0b{% else %}var(--primary-green){% endif %};">
-                        {{ cond['probability'] }}%
+        <div style="margin-bottom: 2rem;">
+            {% for risk in analysis['risks'] %}
+            <div style="margin-bottom: 1.5rem; padding: 1rem; background: #f8fafc; border-radius: 12px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                    <span style="font-weight: 700;">{{ risk['condition'] }}</span>
+                    <span class="badge"
+                        style="background: {% if risk['level'] == 'High' %}#fee2e2; color: #991b1b;{% elif risk['level'] == 'Moderate' %}#fef3c7; color: #92400e;{% else %}#dcfce7; color: #166534;{% endif %}">
+                        {{ risk['level'] }} Risk
                     </span>
                 </div>
-                <!-- Precision Progress Wrapper -->
-                <div
-                    style="width: 100%; height: 8px; background: #f1f5f9; border-radius: 4px; overflow: hidden; border: 1px solid #f1f5f9;">
-                    <div
-                        style="width: {{ cond['probability'] }}%; height: 100%; background: {% if cond['probability'] > 60 %}var(--danger){% elif cond['probability'] > 30 %}#f59e0b{% else %}var(--primary-green){% endif %}; border-radius: 4px; transition: width 1s ease-out;">
-                    </div>
-                </div>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin: 0;">{{ risk['reasoning'] }}</p>
             </div>
             {% endfor %}
         </div>
 
-        {% if analysis['needs_doctor'] %}
-        <div
-            style="background: #fef2f2; border: 1px solid #fee2e2; color: #991b1b; padding: 1.5rem; border-radius: 16px; margin-top: 2rem;">
-            <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem;">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                    stroke-linecap="round" stroke-linejoin="round" style="color: var(--danger);">
-                    <path
-                        d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
-                    <line x1="12" y1="9" x2="12" y2="13" />
-                    <line x1="12" y1="17" x2="12.01" y2="17" />
+        <div style="margin-top: 2rem; border-top: 1px solid #e2e8f0; padding-top: 2rem;">
+            <h4
+                style="color: var(--dark-blue); margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
                 </svg>
-                <h4 style="margin: 0; color: #991b1b;">Clinical Consultation Advised</h4>
-            </div>
-            <p style="font-size: 0.9rem; margin-bottom: 1.25rem; line-height: 1.5;">Our regression models detected
-                markers that warrant a clinical review. Please schedule a consultation with a specialist.</p>
+                Health Improvement Plan
+            </h4>
+            <ul style="padding-left: 1.25rem; margin-bottom: 2rem;">
+                {% for step in analysis['plan'] %}
+                <li style="margin-bottom: 0.75rem; line-height: 1.5; color: var(--text-main);">{{ step }}</li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <div style="background: #eff6ff; padding: 1.5rem; border-radius: 16px; margin-top: 1rem;">
+            <p style="margin-bottom: 1rem; font-weight: 600; color: #1e40af;">{{ analysis['support'] }}</p>
+            <p
+                style="font-size: 0.75rem; color: #1e40af; border-top: 1px solid #bfdbfe; padding-top: 1rem; margin: 0; font-style: italic;">
+                {{ analysis['disclaimer'] }}
+            </p>
+        </div>
+
+        {% if analysis['needs_doctor'] %}
+        <div style="margin-top: 2rem;">
             <form action="{{ url_for('book_consultation') }}" method="POST">
                 <button type="submit" class="btn" style="background: var(--danger); width: 100%; height: 50px;">Secure
                     Appointment Token</button>
             </form>
-        </div>
-        {% else %}
-        <div
-            style="background: #f0fdf4; border: 1px solid #dcfce7; color: #166534; padding: 1.5rem; border-radius: 16px; margin-top: 2rem; text-align: center;">
-            <h4 style="color: #166534; margin-bottom: 0.5rem;">Excellent Health Standing</h4>
-            <p style="font-size: 0.9rem; margin: 0;">Currently, all identified risk vectors are within standard clinical
-                limits. Continue your routine wellness habits.</p>
-        </div>
-        {% endif %}
-
-        {% if analysis['insurance_recommendations'] %}
-        <div
-            style="margin-top: 2rem; padding: 1.5rem; background: #fdfaf3; border-radius: 16px; border: 1px solid #fef3c7;">
-            <h4 style="margin-bottom: 1rem; color: #92400e; display: flex; align-items: center; gap: 0.6rem;">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                </svg>
-                Wellness Protection
-            </h4>
-            <p style="font-size: 0.85rem; color: #92400e; margin-bottom: 1rem;">Based on your biometric risk profile, we
-                advise exploring these protection plans:</p>
-            {% for rec in analysis['insurance_recommendations'] %}
-            <div
-                style="display: flex; align-items: center; gap: 0.6rem; margin-bottom: 0.6rem; font-size: 0.9rem; font-weight: 700; color: #b45309;">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"
-                    stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="20 6 9 17 4 12" />
-                </svg>
-                {{ rec }}
-            </div>
-            {% endfor %}
         </div>
         {% endif %}
     </div>

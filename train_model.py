@@ -19,6 +19,10 @@ def generate_synthetic_data(n_samples=2000):
         'smoking': np.random.choice(['Yes', 'No'], n_samples),
         'cholesterol': np.random.randint(120, 300, n_samples),
         'activity_level': np.random.choice(['Sedentary', 'Moderate', 'Active'], n_samples),
+        'stress_level': np.random.choice(['Low', 'Moderate', 'High'], n_samples),
+        'mood': np.random.choice(['Happy', 'Anxious', 'Sad', 'Stressed'], n_samples),
+        'sleep_quality': np.random.choice(['Restful', 'Interrupted', 'Insomnia'], n_samples),
+        'lifestyle_balance': np.random.choice(['Great', 'Good', 'Poor'], n_samples),
         'heart_risk': np.random.randint(0, 2, n_samples), # Target for Logistic Regression
         'health_score': np.random.uniform(0, 100, n_samples) # Target for Linear Regression
     }
@@ -48,8 +52,20 @@ df['smoking'] = le_smoking.fit_transform(df['smoking'])
 le_activity = LabelEncoder()
 df['activity_level'] = le_activity.fit_transform(df['activity_level'])
 
+le_stress = LabelEncoder()
+df['stress_level'] = le_stress.fit_transform(df['stress_level'])
+
+le_mood = LabelEncoder()
+df['mood'] = le_mood.fit_transform(df['mood'])
+
+le_sleep_q = LabelEncoder()
+df['sleep_quality'] = le_sleep_q.fit_transform(df['sleep_quality'])
+
+le_balance = LabelEncoder()
+df['lifestyle_balance'] = le_balance.fit_transform(df['lifestyle_balance'])
+
 # Define Features
-X = df[['age', 'gender', 'bmi', 'bp_systolic', 'fasting_glucose', 'smoking', 'cholesterol', 'activity_level']]
+X = df[['age', 'gender', 'bmi', 'bp_systolic', 'fasting_glucose', 'smoking', 'cholesterol', 'activity_level', 'stress_level', 'mood', 'sleep_quality', 'lifestyle_balance']]
 y_risk = df['heart_risk']
 y_score = df['health_score']
 
@@ -91,7 +107,11 @@ models = {
     'encoders': {
         'gender': le_gender,
         'smoking': le_smoking,
-        'activity': le_activity
+        'activity': le_activity,
+        'stress': le_stress,
+        'mood': le_mood,
+        'sleep_q': le_sleep_q,
+        'balance': le_balance
     }
 }
 

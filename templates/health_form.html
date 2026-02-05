@@ -83,10 +83,51 @@
             </div>
         </div>
 
-        <!-- Section 3: Body Measurements -->
+        <!-- Section 3: Mental Wellbeing -->
         <h3
             style="margin: 2.5rem 0 1.5rem; color: var(--accent-color); border-bottom: 2px solid var(--primary-color); display: inline-block;">
-            3. Biometrics</h3>
+            3. Mental Wellbeing</h3>
+        <div class="form-group"
+            style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+            <div>
+                <label for="stress_level">Stress Level</label>
+                <select id="stress_level" name="stress_level" class="form-control" required>
+                    <option value="Low">Low</option>
+                    <option value="Moderate">Moderate</option>
+                    <option value="High">High</option>
+                </select>
+            </div>
+            <div>
+                <label for="mood">Mood Condition</label>
+                <select id="mood" name="mood" class="form-control" required>
+                    <option value="Happy">Happy / Stable</option>
+                    <option value="Anxious">Anxious</option>
+                    <option value="Sad">Sad / Depressed</option>
+                    <option value="Stressed">Highly Stressed</option>
+                </select>
+            </div>
+            <div>
+                <label for="sleep_quality">Sleep Quality</label>
+                <select id="sleep_quality" name="sleep_quality" class="form-control" required>
+                    <option value="Restful">Restful</option>
+                    <option value="Interrupted">Interrupted</option>
+                    <option value="Insomnia">Difficulty Falling Asleep</option>
+                </select>
+            </div>
+            <div>
+                <label for="lifestyle_balance">Lifestyle Balance</label>
+                <select id="lifestyle_balance" name="lifestyle_balance" class="form-control" required>
+                    <option value="Great">Great</option>
+                    <option value="Good">Good</option>
+                    <option value="Poor">Poor / Busy</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Section 4: Body Measurements -->
+        <h3
+            style="margin: 2.5rem 0 1.5rem; color: var(--accent-color); border-bottom: 2px solid var(--primary-color); display: inline-block;">
+            4. Biometrics</h3>
         <div class="form-group"
             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
             <div>
@@ -107,10 +148,10 @@
             </div>
         </div>
 
-        <!-- Section 4: Lab Results -->
+        <!-- Section 5: Lab Results -->
         <h3
             style="margin: 2.5rem 0 1.5rem; color: var(--accent-color); border-bottom: 2px solid var(--primary-color); display: inline-block;">
-            4. Clinical / Lab Results</h3>
+            5. Clinical / Lab Results</h3>
         <div class="form-group"
             style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
             <div>

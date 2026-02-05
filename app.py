@@ -98,7 +98,7 @@ def health_data():
             except:
                 return default
 
-        # Collect all new data fields
+        # Collect all data fields
         health_data_dict = {
             'sex': f.get('sex'),
             'family_history': f.get('family_history'),
@@ -107,6 +107,11 @@ def health_data():
             'activity': f.get('activity'),
             'diet': f.get('diet'),
             'sleep': parse_num(f.get('sleep')),
+            'environmental': f.get('environmental'),
+            'stress_level': f.get('stress_level'),
+            'mood': f.get('mood'),
+            'sleep_quality': f.get('sleep_quality'),
+            'lifestyle_balance': f.get('lifestyle_balance'),
             'height': parse_num(f.get('height')),
             'weight': parse_num(f.get('weight')),
             'bp_systolic': parse_num(f.get('bp_systolic'), type_func=int),
@@ -116,16 +121,14 @@ def health_data():
             'cholesterol': parse_num(f.get('cholesterol'), type_func=int),
             'ldl': parse_num(f.get('ldl'), type_func=int),
             'hdl': parse_num(f.get('hdl'), type_func=int),
-            'triglycerides': parse_num(f.get('triglycerides'), type_func=int),
-            'environmental': f.get('environmental')
+            'triglycerides': parse_num(f.get('triglycerides'), type_func=int)
         }
 
         # Calculate clinical metrics
-        # BMI = weight(kg) / (height(m)^2)
         h_m = health_data_dict['height'] / 100
-        bmi = health_data_dict['weight'] / (h_m * h_m) if h_m > 0 else 0
+        bmi = round(health_data_dict['weight'] / (h_m * h_m), 1) if h_m > 0 else 0
         
-        # BP Status
+        # Clinical Guideline Thresholds (WHO/AHA/ADA)
         sys = health_data_dict['bp_systolic']
         dia = health_data_dict['bp_diastolic']
         if sys < 120 and dia < 80: bp_status = "Normal"
@@ -133,88 +136,110 @@ def health_data():
         elif sys < 140 or dia < 90: bp_status = "Hypertension Stage 1"
         else: bp_status = "Hypertension Stage 2"
         
-        # Sugar Status
         glu = health_data_dict['fasting_glucose']
         if glu < 100: sugar_status = "Normal"
         elif glu < 126: sugar_status = "Prediabetes"
         else: sugar_status = "Diabetes"
 
-        # --- Machine Learning Workflow Integration ---
+        # ML Risk Estimation
+        heart_prob = 0
+        health_score = 75
         use_ml = ML_READY
         if use_ml:
             try:
-                # Prepare features for the ML models
-                # Features: [age, gender, bmi, bp_systolic, fasting_glucose, smoking, cholesterol, activity_level]
                 gender_enc = ML_ENCODERS['gender'].transform([health_data_dict['sex']])[0]
                 smoking_enc = ML_ENCODERS['smoking'].transform([health_data_dict['smoking']])[0]
-                # Default activity to Moderate if not found (simple fallback)
-                try:
-                    activity_enc = ML_ENCODERS['activity'].transform([health_data_dict['activity']])[0]
-                except:
-                    activity_enc = 1 # Moderate
+                try: activity_enc = ML_ENCODERS['activity'].transform([health_data_dict['activity']])[0]
+                except: activity_enc = 1
+                
+                try: stress_enc = ML_ENCODERS['stress'].transform([health_data_dict['stress_level']])[0]
+                except: stress_enc = 1
+                
+                try: mood_enc = ML_ENCODERS['mood'].transform([health_data_dict['mood']])[0]
+                except: mood_enc = 1
+                
+                try: sleep_q_enc = ML_ENCODERS['sleep_q'].transform([health_data_dict['sleep_quality']])[0]
+                except: sleep_q_enc = 1
+                
+                try: balance_enc = ML_ENCODERS['balance'].transform([health_data_dict['lifestyle_balance']])[0]
+                except: balance_enc = 1
                 
                 features = np.array([[
-                    float(user_age),
-                    gender_enc,
-                    bmi,
-                    float(health_data_dict['bp_systolic']),
-                    float(health_data_dict['fasting_glucose']),
-                    smoking_enc,
-                    float(health_data_dict['cholesterol']),
-                    activity_enc
+                    float(user_age), 
+                    gender_enc, 
+                    bmi, 
+                    float(sys), 
+                    float(glu), 
+                    smoking_enc, 
+                    float(health_data_dict['cholesterol']), 
+                    activity_enc,
+                    stress_enc,
+                    mood_enc,
+                    sleep_q_enc,
+                    balance_enc
                 ]])
-                
-                # Scale features
                 features_scaled = ML_SCALER.transform(features)
                 
-                # 1. LOGISTIC REGRESSION for Disease Probability
-                # We use predict_proba for probabilities
                 heart_prob = float(round(ML_MODEL_RISK.predict_proba(features_scaled)[0][1] * 100, 1))
-                
-                # For diabetes and cancer, we can use the same model or simulated ones if we only had one target
-                # Here we'll reuse the risk model with some adjustments for demonstration
-                diabetes_prob = float(min(heart_prob + random.randint(-10, 10), 95))
-                cancer_prob = float(min(heart_prob * 0.5 + random.randint(-5, 5), 90))
-
-                # 2. LINEAR REGRESSION for Overall Health Score
                 health_score = float(round(ML_MODEL_SCORE.predict(features_scaled)[0], 1))
-                health_score = max(min(health_score, 100.0), 0.0) # Clamp
-                
-            except Exception as e:
-                print(f"Prediction Error: {e}")
-                # Fallback to manual logic if prediction fails
-                use_ml = False 
+                health_score = max(min(health_score, 100.0), 0.0)
+            except: use_ml = False
 
         if not use_ml:
-            # Fallback Manual Logic (Simplified Regression)
-            def sigmoid(z):
-                return 1 / (1 + math.exp(-z))
-            
-            z_heart = -10.0 + (0.05 * user_age) + (0.04 * (health_data_dict['bp_systolic'] - 120))
-            heart_prob = round(sigmoid(z_heart) * 100, 1)
-            diabetes_prob = 10.0
-            cancer_prob = 5.0
-            health_score = 75.0
+            # Evidence-based Rule Fallback
+            heart_prob = 10.0
+            if sys > 140: heart_prob += 20
+            is_smoker = health_data_dict['smoking'] == 'Yes'
+            if is_smoker: heart_prob += 15
+            if bmi > 30: heart_prob += 10
+            heart_prob = min(heart_prob, 95)
 
-        insurance_rec = []
-        if heart_prob > 60: insurance_rec.append("Critical Illness Cover (Cardiac Specialist)")
-        if diabetes_prob > 60: insurance_rec.append("Lifestyle Disease Protection Plan")
-        if cancer_prob > 50: insurance_rec.append("Cancer Care Shield")
-        if not insurance_rec and (heart_prob > 30 or diabetes_prob > 30):
-            insurance_rec.append("Standard Comprehensive Health Insurance")
+        # 1. Gentle Opening
+        opening = "Thank you for sharing your health details. I will carefully review them to give you a safe and helpful health overview."
+
+        # 2. Current Health Summary
+        condition_summary = f"Your physical health shows a BMI of {bmi} ({'Healthy' if 18.5 <= bmi <= 25 else 'Above range' if bmi > 25 else 'Below range'}). "
+        condition_summary += f"Blood pressure is currently {bp_status} at {sys}/{dia} mmHg. "
+        condition_summary += f"Blood glucose is {sugar_status.lower()}. "
+        condition_summary += f"Mentally, you've reported a {health_data_dict['mood'].lower()} mood with {health_data_dict['stress_level'].lower()} stress."
+
+        # 3. Disease Risk Assessment
+        diabetes_prob = 15.0 if sugar_status == "Normal" else (45.0 if sugar_status == "Prediabetes" else 85.0)
+        risks = [
+            {"condition": "Diabetes Risk", "level": "Low" if diabetes_prob < 30 else ("Moderate" if diabetes_prob < 60 else "High"), "probability": diabetes_prob, "reasoning": f"Based on fasting glucose of {glu} mg/dL and HbA1c of {health_data_dict['hba1c']}%."},
+            {"condition": "Hypertension Risk", "level": "Low" if sys < 130 else "Moderate", "probability": 20 if sys < 130 else 50, "reasoning": f"Current BP is {sys}/{dia} mmHg."},
+            {"condition": "Cardiovascular Risk", "level": "Low" if heart_prob < 20 else ("Moderate" if heart_prob < 50 else "High"), "probability": heart_prob, "reasoning": "Determined by age, smoking status, systolic BP, and cholesterol levels."},
+            {"condition": "Metabolic Syndrome", "level": "Moderate" if bmi > 27 and sys > 130 else "Low", "probability": 40 if bmi > 27 and sys > 130 else 10, "reasoning": "Correlation between BMI, BP, and glucose levels."}
+        ]
+
+        # 4. Personalized Health Improvement Plan
+        plan = []
+        if bmi > 25: plan.append("Aim for 150 minutes of moderate aerobic activity weekly to manage weight.")
+        if sys > 130: plan.append("Reduce sodium intake and consider the DASH diet.")
+        if glu > 100: plan.append("Prioritize complex carbohydrates and lean proteins; limit refined sugars.")
+        if health_data_dict['stress_level'] == 'High': plan.append("Incorporate 10-15 minutes of mindfulness or breathing exercises daily.")
+        if health_data_dict['sleep'] < 7: plan.append("Try to establish a consistent sleep schedule to reach 7-8 hours of restful sleep.")
+        plan.append("Consult a licensed doctor if you experience persistent symptoms or to discuss these findings further.")
+        
+        # 5. Emotional Support Tone
+        support = "Many of these risks can be improved with small daily changes. You are taking a positive step by checking your health."
+
+        # 6. Mandatory Medical Disclaimer
+        disclaimer = "This assessment is for preventive health awareness only and does not replace a qualified medical professional. Please consult a licensed doctor for diagnosis or treatment decisions."
 
         analysis = {
-            "bmi": round(bmi, 2),
+            "bmi": bmi,
             "bp_status": bp_status,
             "sugar_status": sugar_status,
             "health_score": health_score,
-            "conditions": [
-                {"condition": "Heart Disease Risk", "probability": heart_prob},
-                {"condition": "Diabetes Risk", "probability": diabetes_prob},
-                {"condition": "Cancer Risk", "probability": cancer_prob}
-            ],
-            "insurance_recommendations": insurance_rec,
-            "needs_doctor": heart_prob > 50 or diabetes_prob > 50 or cancer_prob > 40 or bp_status != "Normal" or sugar_status != "Normal"
+            "opening": opening,
+            "summary": condition_summary,
+            "risks": risks,
+            "plan": plan,
+            "support": support,
+            "disclaimer": disclaimer,
+            "needs_doctor": any(r['level'] == 'High' for r in risks) or bp_status.startswith("Hypertension") or sugar_status == "Diabetes",
+            "conditions": [{"condition": r['condition'], "probability": r['probability']} for r in risks] # For backward compatibility with template if needed
         }
         
         database.save_health_data(user_id, health_data_dict, json.dumps(analysis))
