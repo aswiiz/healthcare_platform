@@ -9,17 +9,21 @@ import numpy as np
 from datetime import datetime
 import mimetypes
 from openai import OpenAI
+import os
 from dotenv import load_dotenv
 
-load_dotenv() # Load variables from .env
+env_path = os.path.join(os.path.dirname(__file__), '.env')
+loaded = load_dotenv(env_path)
+print(f"DEBUG: .env load status: {loaded} from {env_path}")
+
 mimetypes.add_type('text/css', '.css')
 
 # Local High-Accuracy Medical Knowledge Base (Fallback)
 MEDICAL_KB = {
-    "diabetes": "Diabetes is a group of diseases that result in too much sugar in the blood (high blood glucose). Type 1 is a chronic condition where the pancreas produces little or no insulin. Type 2 is a chronic condition that affects the way the body processes blood sugar. Symptoms include increased thirst, frequent urination, and unexplained weight loss. Accuracy Grade: 95% (Clinical Guideline Source: ADA).",
-    "hypertension": "Hypertension (High Blood Pressure) is a condition where the force of the blood against artery walls is too high. Normal is <120/80. Stage 1: 130-139/80-89. Stage 2: 140+/90+. Risk factors: Salt intake, lack of exercise, obesity. Accuracy Grade: 98% (Clinical Guideline Source: AHA).",
-    "fever": "A fever is a temporary increase in body temperature, often due to an illness. For adults, a fever is usually 100.4 F (38 C) or higher. Key care: Hydration, rest, and monitoring for severe symptoms like stiff neck or difficulty breathing. Accuracy Grade: 92% (Clinical Guideline Source: WHO).",
-    "asthma": "Asthma is a condition in which your airways narrow and swell and may produce extra mucus. This can make breathing difficult and trigger coughing, a whistling sound (wheezing) when you breathe out and shortness of breath. Accuracy Grade: 94% (Clinical Guideline Source: GINA)."
+    "diabetes": "Diabetes is a chronic metabolic disorder characterized by elevated blood glucose levels. Type 1 involves insulin deficiency, while Type 2 involves insulin resistance. Key symptoms: Polyuria (excessive urination), Polydipsia (excessive thirst), and blurred vision. Strategy: Monitoring HbA1c, balanced nutrition, and regular physical activity. Accuracy: 95% (ADA Guidelines).",
+    "hypertension": "Hypertension (High Blood Pressure) occurs when the force of blood against your artery walls is consistently too high. Risk factors include high sodium intake, stress, and obesity. Normal: <120/80 mmHg. Stage 1: 130-139/80-89. Stage 2: 140+/90+. Accuracy: 98% (AHA Guidelines).",
+    "fever": "A fever (pyrexia) is an elevation in body temperature above the normal range of 98.6°F (37°C). It is typically a sign of underlying infection or inflammation. Seek medical care if temperature exceeds 103°F (39.4°C) or is accompanied by severe headache, rash, or breathing issues. Accuracy: 92% (WHO Guidelines).",
+    "asthma": "Asthma is a chronic respiratory condition causing airway inflammation and narrowing. Symptoms include wheezing, shortness of breath, and chest tightness. Management involves avoiding triggers (pollen, dust) and using inhalers (bronchodilators). Accuracy: 94% (GINA Guidelines)."
 }
 
 # Load the trained ML models
@@ -37,16 +41,21 @@ except Exception as e:
 
 # Initialize Open Source Chatbot (Groq API)
 try:
-    # IMPORTANT: Set GROQ_API_KEY in your system environment or .env file 
+    # Explicitly load from environ which should now contain .env data
     groq_api_key = os.environ.get("GROQ_API_KEY", "")
+    print(f"DEBUG: GROQ_API_KEY found: {bool(groq_api_key)}")
+    if groq_api_key:
+        print(f"DEBUG: Key starts with: {groq_api_key[:5]}...")
+    
     groq_client = OpenAI(
         base_url="https://api.groq.com/openai/v1",
         api_key=groq_api_key
     )
     # We set CHAT_READY to True if we have a valid key
-    CHAT_READY = bool(groq_api_key and len(groq_api_key) > 10)
+    CHAT_READY = bool(groq_api_key and len(groq_api_key) > 5)
+    print(f"DEBUG: Chatbot CHAT_READY status: {CHAT_READY}")
 except Exception as e:
-    print(f"Chatbot client initialization failed: {e}")
+    print(f"DEBUG: Chatbot client initialization failed: {e}")
     CHAT_READY = False
 
 app = Flask(__name__)
