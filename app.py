@@ -8,6 +8,7 @@ import pickle
 import numpy as np
 from datetime import datetime
 import mimetypes
+from openai import OpenAI
 
 mimetypes.add_type('text/css', '.css')
 
@@ -23,6 +24,18 @@ try:
 except Exception as e:
     print(f"ML Model loading failed: {e}")
     ML_READY = False
+
+# Initialize Open Source Chatbot (Groq API)
+try:
+    groq_api_key = os.environ.get("GROQ_API_KEY", "your_api_key_here")
+    groq_client = OpenAI(
+        base_url="https://api.groq.com/openai/v1",
+        api_key=groq_api_key
+    )
+    CHAT_READY = groq_api_key != "your_api_key_here"
+except Exception as e:
+    print(f"Chatbot client initialization failed: {e}")
+    CHAT_READY = False
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key' # In a real app, use a secure secret key
@@ -326,24 +339,46 @@ def disease_info():
 
 @app.route('/api/chatbot', methods=['POST'])
 def chatbot():
-    user_msg = request.json.get('message', '').lower()
-    
-    responses = {
-        "hello": "Hello! I am your Health Assistant. How can I help you today?",
-        "hi": "Hi there! I can help you with health info or site navigation.",
-        "diabetes": "Diabetes is a chronic condition that affects how your body turns food into energy. Dos: Exercise, eat fiber. Don'ts: Sugary drinks, smoking.",
-        "heart disease": "Heart disease refers to several types of heart conditions. Dos: Low salt diet, regular checkups. Don'ts: High trans fats, sedentary lifestyle.",
-        "emergency": "If you are having a medical emergency, please call your local emergency services (like 911) immediately.",
-        "first aid": "For minor cuts: Clean with water, apply antiseptic, and bandage. For burns: Run under cool water (not ice) for 10-15 mins.",
-        "insurance": "We recommend insurance plans based on your health assessment risks. Check your latest Health Report for specific suggestions."
+    user_msg = request.json.get('message', '').strip()
+    if not user_msg:
+        return {"reply": "How can I help you today?"}
+
+    # 1. Rule-based / Keyword Guardrails (Safety first)
+    lower_msg = user_msg.lower()
+    medical_responses = {
+        "diabetes": "Diabetes is a chronic condition regarding blood sugar. While I can offer lifestyle guidance, please consult your doctor for management.",
+        "emergency": "If you are experiencing a medical emergency, please contact 911 or your local emergency services immediately.",
+        "prescribe": "I cannot prescribe drugs or treatments. Please consult a licensed medical professional for medication.",
+        "diagnose": "I provide risk assessments based on data, not a final clinical diagnosis. Always verify health concerns with a doctor."
     }
     
-    reply = "I'm not sure about that. Try asking about 'diabetes', 'heart disease', 'first aid', or 'insurance'."
-    for key in responses:
-        if key in user_msg:
-            reply = responses[key]
-            break
-            
+    for key in medical_responses:
+        if key in lower_msg:
+            return {"reply": medical_responses[key]}
+
+    # 2. Groq Open Source AI Fallback
+    if CHAT_READY:
+        try:
+            chat_completion = groq_client.chat.completions.create(
+                model="llama-3.3-70b-versatile",
+                messages=[
+                    {"role": "system", "content": "You are a helpful healthcare assistant. Provide general health info, but always advise the user to consult a professional for diagnosis. Keep responses concise and supportive."},
+                    {"role": "user", "content": user_msg}
+                ],
+                max_tokens=300
+            )
+            reply = chat_completion.choices[0].message.content
+                
+        except Exception as e:
+            print(f"Groq API error: {e}")
+            reply = "I'm having trouble connecting to my advanced reasoning engine. How can I help with your general health data?"
+    else:
+        reply = "I'm currently in a limited mode. How can I help with your health data?"
+
+    # Append a soft reminder for safety
+    if len(reply) > 5:
+        reply += " (Note: I'm an AI health assistant, not a doctor.)"
+
     return {"reply": reply}
 
 @app.route('/admin/login', methods=['GET', 'POST'])
