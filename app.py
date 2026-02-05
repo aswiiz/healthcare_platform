@@ -8,23 +8,8 @@ import pickle
 import numpy as np
 from datetime import datetime
 import mimetypes
-from openai import OpenAI
-import os
-from dotenv import load_dotenv
-
-env_path = os.path.join(os.path.dirname(__file__), '.env')
-loaded = load_dotenv(env_path)
-print(f"DEBUG: .env load status: {loaded} from {env_path}")
 
 mimetypes.add_type('text/css', '.css')
-
-# Local High-Accuracy Medical Knowledge Base (Fallback)
-MEDICAL_KB = {
-    "diabetes": "Diabetes is a chronic metabolic disorder characterized by elevated blood glucose levels. Type 1 involves insulin deficiency, while Type 2 involves insulin resistance. Key symptoms: Polyuria (excessive urination), Polydipsia (excessive thirst), and blurred vision. Strategy: Monitoring HbA1c, balanced nutrition, and regular physical activity. Accuracy: 95% (ADA Guidelines).",
-    "hypertension": "Hypertension (High Blood Pressure) occurs when the force of blood against your artery walls is consistently too high. Risk factors include high sodium intake, stress, and obesity. Normal: <120/80 mmHg. Stage 1: 130-139/80-89. Stage 2: 140+/90+. Accuracy: 98% (AHA Guidelines).",
-    "fever": "A fever (pyrexia) is an elevation in body temperature above the normal range of 98.6°F (37°C). It is typically a sign of underlying infection or inflammation. Seek medical care if temperature exceeds 103°F (39.4°C) or is accompanied by severe headache, rash, or breathing issues. Accuracy: 92% (WHO Guidelines).",
-    "asthma": "Asthma is a chronic respiratory condition causing airway inflammation and narrowing. Symptoms include wheezing, shortness of breath, and chest tightness. Management involves avoiding triggers (pollen, dust) and using inhalers (bronchodilators). Accuracy: 94% (GINA Guidelines)."
-}
 
 # Load the trained ML models
 try:
@@ -38,25 +23,6 @@ try:
 except Exception as e:
     print(f"ML Model loading failed: {e}")
     ML_READY = False
-
-# Initialize Open Source Chatbot (Groq API)
-try:
-    # Explicitly load from environ which should now contain .env data
-    groq_api_key = os.environ.get("GROQ_API_KEY", "")
-    print(f"DEBUG: GROQ_API_KEY found: {bool(groq_api_key)}")
-    if groq_api_key:
-        print(f"DEBUG: Key starts with: {groq_api_key[:5]}...")
-    
-    groq_client = OpenAI(
-        base_url="https://api.groq.com/openai/v1",
-        api_key=groq_api_key
-    )
-    # We set CHAT_READY to True if we have a valid key
-    CHAT_READY = bool(groq_api_key and len(groq_api_key) > 5)
-    print(f"DEBUG: Chatbot CHAT_READY status: {CHAT_READY}")
-except Exception as e:
-    print(f"DEBUG: Chatbot client initialization failed: {e}")
-    CHAT_READY = False
 
 app = Flask(__name__)
 app.secret_key = 'super_secret_key' # In a real app, use a secure secret key
@@ -358,63 +324,7 @@ def disease_info():
         return redirect(url_for('login'))
     return render_template('disease_info.html')
 
-@app.route('/api/chatbot', methods=['POST'])
-def chatbot():
-    user_msg = request.json.get('message', '').strip()
-    if not user_msg:
-        return {"reply": "How can I help you today?"}
 
-    lower_msg = user_msg.lower()
-
-    # 1. High-Accuracy Local Knowledge Base Screen
-    for key, info in MEDICAL_KB.items():
-        if key in lower_msg:
-            return {"reply": f"**{key.capitalize()} Overview:** {info} \n\nIs there anything specific about this condition you'd like to know?"}
-
-    # 2. Rule-based / Keyword Guardrails (Safety first)
-    medical_responses = {
-        "emergency": "If you are experiencing a medical emergency, please contact 911 or your local emergency services immediately. Quick action saves lives.",
-        "prescribe": "I cannot prescribe drugs or treatments. Please consult a licensed medical professional for medication. Use of unverified drugs can be dangerous.",
-        "diagnose": "I provide structured health insights and risk assessments based on clinical data, not a final clinical diagnosis. Safety first: Please verify health concerns with a licensed doctor."
-    }
-    
-    for key in medical_responses:
-        if key in lower_msg:
-            return {"reply": medical_responses[key]}
-
-    # 3. Groq Open Source AI (High-Performance Clinical Mode)
-    try:
-        chat_completion = groq_client.chat.completions.create(
-            model="llama-3.3-70b-versatile",
-            messages=[
-                {
-                    "role": "system", 
-                    "content": (
-                        "You are an Advanced Clinical Healthcare AI. Your objective is 90%+ clinical accuracy. "
-                        "When asked about a disease follow this PRECISE structure: "
-                        "1. **Overview**: Definition and key facts. "
-                        "2. **Symptoms**: Detailed list of clinical signs. "
-                        "3. **Causes & Risk Factors**: Why it happens. "
-                        "4. **Prevention & Management**: Actionable lifestyle advice based on clinical guidelines. "
-                        "5. **When to see a doctor**: Specific warning signs. "
-                        "Additional Rule: If asked about the Healthcare Hub website, explain it is a 'Smart Health Analysis Platform' including AI Risk Prediction, Health Diaries, and Digital Records. "
-                        "Tone: Professional, detailed, and evidence-based. "
-                        "Safety: You MUST include the following disclaimer at the very end: 'This information is for health awareness only. For diagnosis, consult a licensed professional.'"
-                    )
-                },
-                {"role": "user", "content": user_msg}
-            ],
-            max_tokens=1000,
-            temperature=0.2 # Factual precision
-        )
-        reply = chat_completion.choices[0].message.content
-            
-    except Exception as e:
-        print(f"Chat error: {e}")
-        # Final safety fallback with high-quality static info if API fails
-        reply = f"I am currently processing your request for '{user_msg}'. While I reconnect to my full clinical database, please note that for most common conditions, the key markers are BMI, Blood Pressure, and Glucose. Please check your latest 'Health Report' in the dashboard for a personalized, high-accuracy analysis of your own statistics."
-
-    return {"reply": reply}
 
 @app.route('/admin/login', methods=['GET', 'POST'])
 def admin_login():
