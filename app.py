@@ -37,12 +37,14 @@ except Exception as e:
 
 # Initialize Open Source Chatbot (Groq API)
 try:
+    # IMPORTANT: Set GROQ_API_KEY in your system environment or .env file 
     groq_api_key = os.environ.get("GROQ_API_KEY", "")
     groq_client = OpenAI(
         base_url="https://api.groq.com/openai/v1",
         api_key=groq_api_key
     )
-    CHAT_READY = bool(groq_api_key and groq_api_key != "your_api_key_here")
+    # We set CHAT_READY to True if we have a valid key
+    CHAT_READY = bool(groq_api_key and len(groq_api_key) > 10)
 except Exception as e:
     print(f"Chatbot client initialization failed: {e}")
     CHAT_READY = False
@@ -371,43 +373,37 @@ def chatbot():
         if key in lower_msg:
             return {"reply": medical_responses[key]}
 
-    # 3. Groq Open Source AI Fallback (High Accuracy Mode)
-    if CHAT_READY:
-        try:
-            chat_completion = groq_client.chat.completions.create(
-                model="llama-3.3-70b-versatile",
-                messages=[
-                    {
-                        "role": "system", 
-                        "content": (
-                            "You are a Senior Healthcare Assistant with access to advanced clinical knowledge. "
-                            "Goal: Provide COMPLETE, DETAILED, and HIGHLY ACCURATE (aim for 90% accuracy level) medical information. "
-                            "Format: Use clear headings, bullet points for lists, and detailed explanations. "
-                            "Safety: Always include a professional medical advisory at the end. "
-                            "Context: Focus on evidence-based data, WHO guidelines, and clinical best practices. "
-                            "If the user asks about the website, explain that this is an AI-powered Healthcare Hub for risk assessment and wellness."
-                        )
-                    },
-                    {"role": "user", "content": user_msg}
-                ],
-                max_tokens=800,
-                temperature=0.3 # Lower temperature for higher factual accuracy
-            )
-            reply = chat_completion.choices[0].message.content
-                
-        except Exception as e:
-            print(f"Groq API error: {e}")
-            reply = "I'm experiencing a brief connection issue with my clinical reasoning core. However, I can still help you review your health records or analyze specific biomarkers. What would you like to check?"
-    else:
-        reply = (
-            "I'm currently in 'Local Insight' mode because my advanced cloud reasoning is being initialized. "
-            "I can still provide high-accuracy details on common conditions like Diabetes, Hypertension, or Asthma. "
-            "Please try asking about those, or check your 'Health Report' for detailed biomarker analysis."
+    # 3. Groq Open Source AI (High-Performance Clinical Mode)
+    try:
+        chat_completion = groq_client.chat.completions.create(
+            model="llama-3.3-70b-versatile",
+            messages=[
+                {
+                    "role": "system", 
+                    "content": (
+                        "You are an Advanced Clinical Healthcare AI. Your objective is 90%+ clinical accuracy. "
+                        "When asked about a disease follow this PRECISE structure: "
+                        "1. **Overview**: Definition and key facts. "
+                        "2. **Symptoms**: Detailed list of clinical signs. "
+                        "3. **Causes & Risk Factors**: Why it happens. "
+                        "4. **Prevention & Management**: Actionable lifestyle advice based on clinical guidelines. "
+                        "5. **When to see a doctor**: Specific warning signs. "
+                        "Additional Rule: If asked about the Healthcare Hub website, explain it is a 'Smart Health Analysis Platform' including AI Risk Prediction, Health Diaries, and Digital Records. "
+                        "Tone: Professional, detailed, and evidence-based. "
+                        "Safety: You MUST include the following disclaimer at the very end: 'This information is for health awareness only. For diagnosis, consult a licensed professional.'"
+                    )
+                },
+                {"role": "user", "content": user_msg}
+            ],
+            max_tokens=1000,
+            temperature=0.2 # Factual precision
         )
-
-    # Append a professional reminder if generative AI was used
-    if CHAT_READY and len(reply) > 5:
-        reply += "\n\n***Advisory:*** *This information is for health awareness based on evidence data. For clinical diagnosis or treatment, please consult a licensed medical professional.*"
+        reply = chat_completion.choices[0].message.content
+            
+    except Exception as e:
+        print(f"Chat error: {e}")
+        # Final safety fallback with high-quality static info if API fails
+        reply = f"I am currently processing your request for '{user_msg}'. While I reconnect to my full clinical database, please note that for most common conditions, the key markers are BMI, Blood Pressure, and Glucose. Please check your latest 'Health Report' in the dashboard for a personalized, high-accuracy analysis of your own statistics."
 
     return {"reply": reply}
 
